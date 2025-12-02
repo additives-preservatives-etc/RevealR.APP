@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Food Additive & Preservative Checker</title>
+<style>
+  /* GENERAL STYLES */
+  body { 
+    font-family: system-ui, sans-serif; 
+    background:#f3f4f6; 
+    margin:0; 
+    padding:1.5rem; 
+    color:#1f2937;
+  }
+
+  .app-container { 
+    max-width:1100px; 
+    margin:0 auto; 
+    background:#fff; 
+    padding:2rem; 
+    border-radius:12px; 
+    box-shadow:0 10px 20px rgba(0,0,0,0.06); 
+  }
+
+  h1, h2 { 
+    color:#111827; 
+  }
+
+  input, button, select, textarea { 
+    padding:0.6rem; 
+    border-radius:6px; 
+    border:1px solid #ccc; 
+    width:100%; 
+    box-sizing:border-box; 
+    font-size:1rem;
+  }
+
+  input:focus, select:focus, textarea:focus { 
+    outline:none; 
+    border-color:#2563eb; 
+    box-shadow:0 0 0 2px rgba(37,99,235,0.2); 
+  }
+
+  button { 
+    background:#2563eb; 
+    color:#fff; 
+    font-weight:600; 
+    cursor:pointer; 
+    transition:background 0.3s; 
+    margin-top:0.5rem;
+  }
+
+  button:hover { 
+    background:#1e40af; 
+  }
+
+  .card { 
+    background:#f9fafb; 
+    padding:1.5rem; 
+    border-radius:12px; 
+    border:1px solid #e5e7eb; 
+    margin-bottom:1.5rem; 
+  }
+
+  .grid { 
+    display:grid; 
+    grid-template-columns: repeat(auto-fit, minmax(320px,1fr)); 
+    gap:1.5rem; 
+  }
+
+  .pill { 
+    display:inline-block; 
+    padding:0.2rem 0.5rem; 
+    border-radius:999px; 
+    margin-right:4px; 
+    margin-bottom:4px;
+    font-size:0.85rem;
+  }
+
+  .pill.low { background:#dcfce7; color:#166534; }
+  .pill.moderate { background:#fef9c3; color:#854d0e; }
+  .pill.high { background:#fee2e2; color:#991b1b; }
+  .pill.unknown { background:#e5e7eb; color:#374151; }
+
+  ul { 
+    list-style:none; 
+    padding:0; 
+  }
+
+  .muted { 
+    color:#6b7280; 
+    font-style:italic;
+  }
+
+  table { 
+    width:100%; 
+    border-collapse:collapse; 
+    margin-top:0.6rem; 
+  }
+
+  th, td { 
+    padding:0.5rem; 
+    border-bottom:1px solid #e5e7eb; 
+    text-align:left; 
+    vertical-align:top; 
+  }
+
+  th { 
+    background:#f3f4f6; 
+    font-weight:600; 
+  }
+
+  /* SUMMARY CHIPS */
+  #summaryChips span { 
+    margin-bottom:0.5rem; 
+    display:inline-block; 
+    font-size:0.9rem; 
+  }
+
+  hr { 
+    margin:1rem 0; 
+    border:none; 
+    border-top:1px solid #e5e7eb; 
+  }
+
+  label { 
+    font-weight:500; 
+    display:block; 
+    margin-bottom:0.3rem; 
+  }
+
+  /* RESPONSIVE TABLE */
+  @media(max-width: 600px){
+    table, thead, tbody, th, td, tr { display:block; }
+    th { display:none; }
+    td { padding-left:50%; position:relative; }
+    td::before { 
+      content: attr(data-label); 
+      position:absolute; 
+      left:0; 
+      width:45%; 
+      padding-left:0.5rem; 
+      font-weight:600; 
+      background:#f3f4f6;
+      border-radius:4px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="app-container">
+
+  <h1>Food Additive & Preservative Checker</h1>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Add Food</h2>
+
+      <label for="foodSearch">Type any food you ate</label>
+      <input id="foodSearch" placeholder="e.g. Big Mac, Pepsi Max, Doritos" aria-label="Type food name" />
+      <button onclick="autoSearchFood()">Auto-detect additives online</button>
+
+      <hr>
+
+      <p>Or choose common fast foods:</p>
+      <select id="fastFoodMenu">
+        <option value="">-- Choose an item --</option>
+        <option value="bigmac">McDonald's Big Mac</option>
+        <option value="fries">Fast-food French Fries</option>
+        <option value="kfc_bucket">KFC Chicken Bucket</option>
+        <option value="tacobell_taco">Taco Bell Taco</option>
+      </select>
+      <button onclick="addFastFood()">Add fast food</button>
+    </div>
+
+    <div class="card">
+      <h2>Today's Foods</h2>
+      <ul id="foodsList" class="muted"><li>No foods logged yet.</li></ul>
+      <button onclick="clearFoods()">Clear All</button>
+    </div>
+  </div>
+
+  <div class="card" id="results">
+    <h2>Daily Additive Summary</h2>
+
+    <div id="summaryChips"></div>
+
+    <p style="font-size:0.85rem; margin-bottom:1rem;">
+      Colour key:
+      <span class="pill high" style="font-size:0.75rem;">Higher concern</span>
+      <span class="pill moderate" style="font-size:0.75rem;">Some concern</span>
+      <span class="pill low" style="font-size:0.75rem;">Lower concern</span>
+      <span class="pill unknown" style="font-size:0.75rem;">Not in sample list</span>
+    </p>
+
+    <div id="additiveTable">No data yet.</div>
+  </div>
+
+</div>
+
+<script>
+// ---- Fast Food Presets ----
+const fastFoodDB = {
+  bigmac:["150d","202","330","621"],
+  fries:["320","450","500"],
+  kfc_bucket:["621","627","631","150c"],
+  tacobell_taco:["330","202","1422","621"]
+};
+
+// ---- Additive Database ----
+const additiveDB = {
+  "102": {name:"Tartrazine", type:"Artificial colour", concern:"high", notes:"Linked to hyperactivity and allergic reactions."},
+  "110": {name:"Sunset Yellow", type:"Artificial colour", concern:"high", notes:"May trigger reactions in sensitive individuals."},
+  "211": {name:"Sodium Benzoate", type:"Preservative", concern:"moderate", notes:"Can form benzene when mixed with vitamin C."},
+  "220": {name:"Sulphur Dioxide", type:"Preservative (sulphite)", concern:"high", notes:"Can trigger asthma or allergies."},
+  "250": {name:"Sodium Nitrite", type:"Preservative (meat)", concern:"high", notes:"Linked to nitrosamine formation (cancer risk)."},
+  "621": {name:"MSG", type:"Flavour enhancer", concern:"moderate", notes:"May cause sensitivity in some people."},
+  "202": {name:"Potassium Sorbate", type:"Preservative", concern:"moderate", notes:"Generally safe but may irritate skin in rare cases."},
+  "330": {name:"Citric Acid", type:"Acidity regulator", concern:"low", notes:"Common and generally safe."},
+  "150d": {name:"Caramel Colour", type:"Colour", concern:"moderate", notes:"May contain processing byproducts of concern."},
+  "150c": {name:"Caramel Colour C", type:"Colour", concern:"moderate", notes:"Used in sauces and cola drinks."},
+  "627": {name:"Disodium Guanylate", type:"Flavour enhancer", concern:"moderate", notes:"Often combined with MSG."},
+  "631": {name:"Disodium Inosinate", type:"Flavour enhancer", concern:"moderate", notes:"Common in savoury snacks."},
+  "320": {name:"BHA", type:"Antioxidant", concern:"moderate", notes:"Possible cancer risk in large amounts."},
+  "450": {name:"Diphosphates", type:"Stabiliser", concern:"low", notes:"Generally recognised as safe."},
+  "500": {name:"Bicarbonates", type:"Raising agent", concern:"low", notes:"Common leavening agent."},
+  "1422": {name:"Modified Starch", type:"Thickener", concern:"low", notes:"Common in processed foods."},
+  "150": {name:"Caramel (generic)", type:"Colour", concern:"moderate", notes:"Generic caramel colour."}
+};
+
+let foods = [];
+
+// ---- Add Fast Food ----
+function addFastFood(){
+  const key = document.getElementById("fastFoodMenu").value;
+  if(!key) return;
+  foods.push({name: document.querySelector(`#fastFoodMenu option[value="${key}"]`).textContent, additives: [...fastFoodDB[key]]});
+  renderFoods();
+  renderTable();
+}
+
+// ---- Auto-detect additives (simulated online search) ----
+async function autoSearchFood(){
+  const item = document.getElementById("foodSearch").value.trim();
+  if(!item) return;
+  const simulated = ["102","110","211","220","250","621"];
+  foods.push({name:item, additives:simulated});
+  renderFoods();
+  renderTable();
+}
+
+// ---- Render Foods List ----
+function renderFoods(){
+  const el = document.getElementById("foodsList");
+  el.innerHTML = "";
+  if(foods.length === 0){ 
+    el.innerHTML = '<li class="muted">No foods logged yet. Add something from the left.</li>'; 
+    return; 
+  }
+  foods.forEach((f, idx)=>{
+    const li = document.createElement("li");
+    const badges = f.additives.length ? f.additives.map(a=>{
+      const concern = additiveDB[a]?.concern || 'unknown';
+      return `<span class="pill ${concern}">${a}</span>`;
+    }).join(' ') : '<span class="muted">No additives recorded</span>';
+    li.innerHTML = `<strong>${idx+1}. ${f.name}</strong><br>Additives: ${badges}`;
+    el.appendChild(li);
+  });
+}
+
+// ---- Clear Foods ----
+function clearFoods(){ 
+  foods = []; 
+  renderFoods(); 
+  document.getElementById("additiveTable").innerHTML = "No data yet."; 
+  renderSummary(); 
+}
+
+// ---- Render Table ----
+function renderTable(){
+  const count = {};
+  foods.forEach(f => f.additives.forEach(a => { const k = String(a).toLowerCase(); count[k] = (count[k]||0)+1; }));
+  const codes = Object.keys(count).sort();
+  if(codes.length === 0){ 
+    document.getElementById("additiveTable").innerHTML = '<p class="muted">No additives to show yet – add some foods first.</p>'; 
+    renderSummary(); 
+    return; 
+  }
+
+  let html = `<table><thead><tr><th>Code</th><th>Name</th><th>Type</th><th>Concern</th><th>Notes</th><th>Times Found</th></tr></thead><tbody>`;
+  codes.forEach(code => {
+    const info = additiveDB[code] || {name: "Unknown", type:"Unknown", concern:"unknown", notes:"Not in database"};
+    let concernLabel = 'Not in this sample list', bg = '#e5e7eb';
+    if(info.concern === 'high'){ concernLabel='Higher concern'; bg='#fee2e2'; }
+    else if(info.concern==='moderate'){ concernLabel='Some concern'; bg='#fef9c3'; }
+    else if(info.concern==='low'){ concernLabel='Lower concern'; bg='#dcfce7'; }
+
+    html += `<tr>
+      <td data-label="Code"><code>${code}</code></td>
+      <td data-label="Name">${info.name}</td>
+      <td data-label="Type">${info.type}</td>
+      <td data-label="Concern" style="background:${bg}; padding:6px; border-radius:8px;">${concernLabel}</td>
+      <td data-label="Notes">${info.notes}</td>
+      <td data-label="Times Found">${count[code]}</td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+  document.getElementById("additiveTable").innerHTML = html;
+  renderSummary();
+}
+
+// ---- Render Summary ----
+function renderSummary(){
+  const summaryEl = document.getElementById('summaryChips');
+  const totalFoods = foods.length;
+  const all = [];
+  foods.forEach(f => all.push(...f.additives));
+  const unique = [...new Set(all.map(x=>String(x).toLowerCase()))];
+
+  let highCount = 0, modCount = 0;
+  unique.forEach(code => {
+    const c = additiveDB[code]?.concern || 'unknown';
+    if(c==='high') highCount++;
+    else if(c==='moderate') modCount++;
+  });
+
+  summaryEl.innerHTML = `
+    <span style="background:#e5e7eb; padding:6px 12px; border-radius:20px;"><strong>${totalFoods}</strong> foods logged</span>
+    <span style="background:#e5e7eb; padding:6px 12px; border-radius:20px;"><strong>${unique.length}</strong> unique additives</span>
+    <span style="background:#fee2e2; color:#991b1b; padding:6px 12px; border-radius:20px;"><strong>${highCount}</strong> higher-concern additives</span>
+    <span style="background:#fef9c3; color:#854d0e; padding:6px 12px; border-radius:20px;"><strong>${modCount}</strong> moderate-concern additives</span>
+  `;
+}
+
+// ---- Initial Render ----
+renderFoods();
+renderTable();
+</script>
+</body>
+</html>
+
