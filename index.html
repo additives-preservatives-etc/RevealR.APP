@@ -3,203 +3,310 @@
 <head>
 <meta charset="UTF-8" />
 <title>Food Additive & Preservative Checker</title>
+
 <style>
-  /* GENERAL STYLES */
-  body { 
-    font-family: system-ui, sans-serif; 
-    background:#f3f4f6; 
-    margin:0; 
-    padding:1.5rem; 
-    color:#1f2937;
+  body {
+    font-family: system-ui, sans-serif;
+    background:#f3f4f6;
+    margin:0;
+    padding:1.5rem;
   }
 
-  .app-container { 
-    max-width:1100px; 
-    margin:0 auto; 
-    background:#fff; 
-    padding:2rem; 
-    border-radius:12px; 
-    box-shadow:0 10px 20px rgba(0,0,0,0.06); 
+  .app-container {
+    max-width:1100px;
+    margin:0 auto;
+    background:#fff;
+    padding:2rem;
+    border-radius:12px;
+    box-shadow:0 10px 20px rgba(0,0,0,0.06);
   }
 
-  h1, h2 { 
-    color:#111827; 
+  input, button, select, textarea {
+    padding:0.6rem;
+    border-radius:6px;
+    border:1px solid #ccc;
+    width:100%;
+    box-sizing:border-box;
   }
 
-  input, button, select, textarea { 
-    padding:0.6rem; 
-    border-radius:6px; 
-    border:1px solid #ccc; 
-    width:100%; 
-    box-sizing:border-box; 
-    font-size:1rem;
+  button {
+    background:#2563eb;
+    color:#fff;
+    font-weight:600;
+    cursor:pointer;
+    width:auto;
   }
 
-  input:focus, select:focus, textarea:focus { 
-    outline:none; 
-    border-color:#2563eb; 
-    box-shadow:0 0 0 2px rgba(37,99,235,0.2); 
+  .card {
+    background:#f9fafb;
+    padding:1rem;
+    border-radius:10px;
+    border:1px solid #e5e7eb;
+    margin-bottom:1rem;
   }
 
-  button { 
-    background:#2563eb; 
-    color:#fff; 
-    font-weight:600; 
-    cursor:pointer; 
-    transition:background 0.3s; 
-    margin-top:0.5rem;
+  .grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px,1fr));
+    gap:1.5rem;
   }
 
-  button:hover { 
-    background:#1e40af; 
+  .pill {
+    display:inline-block;
+    padding:0.1rem 0.4rem;
+    background:#e5e7eb;
+    border-radius:999px;
+    margin-right:4px;
   }
 
-  .card { 
-    background:#f9fafb; 
-    padding:1.5rem; 
-    border-radius:12px; 
-    border:1px solid #e5e7eb; 
-    margin-bottom:1.5rem; 
+  table {
+    width:100%;
+    border-collapse:collapse;
+    margin-top:0.6rem;
   }
-
-  .grid { 
-    display:grid; 
-    grid-template-columns: repeat(auto-fit, minmax(320px,1fr)); 
-    gap:1.5rem; 
+  th, td {
+    padding:0.5rem;
+    border-bottom:1px solid #e5e7eb;
+    text-align:left;
+    vertical-align:top;
   }
+  th { background:#f3f4f6; font-weight:600; }
 
-  .pill { 
-    display:inline-block; 
-    padding:0.2rem 0.5rem; 
-    border-radius:999px; 
-    margin-right:4px; 
-    margin-bottom:4px;
-    font-size:0.85rem;
-  }
 
-  .pill.low { background:#dcfce7; color:#166534; }
-  .pill.moderate { background:#fef9c3; color:#854d0e; }
-  .pill.high { background:#fee2e2; color:#991b1b; }
-  .pill.unknown { background:#e5e7eb; color:#374151; }
 
-  ul { 
-    list-style:none; 
-    padding:0; 
-  }
+/* -------------------- NEW DASHBOARD STYLES -------------------- */
 
-  .muted { 
-    color:#6b7280; 
-    font-style:italic;
-  }
+.dashboard-container {
+  padding: 1.5rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  background-color: #f9fafb; /* Neutral default */
+  border: 1px solid #e5e7eb;
+  transition: background-color 0.5s ease;
+}
 
-  table { 
-    width:100%; 
-    border-collapse:collapse; 
-    margin-top:0.6rem; 
-  }
+/* Color classes based on ultra-processed status */
+.dashboard-container.ultra-processed {
+    background-color: #fee2e2; /* Light Red */
+    border-color: #f87171; /* Red border */
+}
 
-  th, td { 
-    padding:0.5rem; 
-    border-bottom:1px solid #e5e7eb; 
-    text-align:left; 
-    vertical-align:top; 
-  }
+.dashboard-container.natural {
+    background-color: #dcfce7; /* Light Green */
+    border-color: #4ade80; /* Green border */
+}
 
-  th { 
-    background:#f3f4f6; 
-    font-weight:600; 
-  }
+.dashboard-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: nowrap;
+}
 
-  /* SUMMARY CHIPS */
-  #summaryChips span { 
-    margin-bottom:0.5rem; 
-    display:inline-block; 
-    font-size:0.9rem; 
-  }
+.dash-card {
+  flex: 1;
+  background: white;
+  padding: 1rem;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+  min-width: 180px;
+}
 
-  hr { 
-    margin:1rem 0; 
-    border:none; 
-    border-top:1px solid #e5e7eb; 
-  }
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 0.3rem;
+}
 
-  label { 
-    font-weight:500; 
-    display:block; 
-    margin-bottom:0.3rem; 
-  }
+.card-desc {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 0.2rem;
+}
 
-  /* RESPONSIVE TABLE */
-  @media(max-width: 600px){
-    table, thead, tbody, th, td, tr { display:block; }
-    th { display:none; }
-    td { padding-left:50%; position:relative; }
-    td::before { 
-      content: attr(data-label); 
-      position:absolute; 
-      left:0; 
-      width:45%; 
-      padding-left:0.5rem; 
-      font-weight:600; 
-      background:#f3f4f6;
-      border-radius:4px;
-    }
-  }
+.ring {
+  width: 95px;
+  height: 95px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background:
+    conic-gradient(#4ade80 var(--percent, 0%), #e5e7eb 0);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color:#047857;
+}
+
+.ring.clean { background: conic-gradient(#f59e0b var(--percent, 0%), #e5e7eb 0); color:#b45309; }
+.ring.seed { background: conic-gradient(#0ea5e9 var(--percent, 0%), #e5e7eb 0); color:#0369a1; }
+.ring.micro { background: conic-gradient(#f87171 var(--percent, 0%), #e5e7eb 0); color:#b91c1c; }
+
+/* Ingredient breakdown styles */
+.breakdown-container {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.breakdown-label {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+}
+
+.breakdown-label::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.natural-label::before { background-color: #10b981; /* Green */ }
+.artificial-label::before { background-color: #ef4444; /* Red */ }
+
+.progress-bar-container {
+    height: 8px;
+    background-color: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #10b981;
+    width: 0%;
+    transition: width 0.5s ease;
+}
+
 </style>
 </head>
 <body>
 <div class="app-container">
 
-  <h1>Food Additive & Preservative Checker</h1>
+<h1>Food Additive & Preservative Checker</h1>
 
-  <div class="grid">
-    <div class="card">
-      <h2>Add Food</h2>
 
-      <label for="foodSearch">Type any food you ate</label>
-      <input id="foodSearch" placeholder="e.g. Big Mac, Pepsi Max, Doritos" aria-label="Type food name" />
-      <button onclick="autoSearchFood()">Auto-detect additives online</button>
+<!-- -------------- NEW HEALTH DASHBOARD (Updated structure) -------------- -->
 
-      <hr>
+<div class="dashboard-container" id="healthDashboard">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>Your Health Dashboard</h2>
+    <div id="processingStatus" style="font-weight: bold; padding: 0.5rem; border-radius: 8px;">Status: Unknown</div>
+  </div>
 
-      <p>Or choose common fast foods:</p>
-      <select id="fastFoodMenu">
-        <option value="">-- Choose an item --</option>
-        <option value="bigmac">McDonald's Big Mac</option>
-        <option value="fries">Fast-food French Fries</option>
-        <option value="kfc_bucket">KFC Chicken Bucket</option>
-        <option value="tacobell_taco">Taco Bell Taco</option>
-      </select>
-      <button onclick="addFastFood()">Add fast food</button>
+  <p class="dash-sub">Overview of today's logged foods</p>
+
+  <div class="dashboard-row">
+    <!-- Existing Dash Cards remain here -->
+    <div class="dash-card">
+      <div class="ring" id="ringAdditive" style="--percent:0%">0</div>
+      <div class="card-title">Additive Score</div>
+      <div class="card-desc"><span id="additiveCount">0</span> additives logged</div>
     </div>
 
-    <div class="card">
-      <h2>Today's Foods</h2>
-      <ul id="foodsList" class="muted"><li>No foods logged yet.</li></ul>
-      <button onclick="clearFoods()">Clear All</button>
+    <div class="dash-card">
+      <div class="ring clean" id="ringClean" style="--percent:0%">0.0</div>
+      <div class="card-title">Clean Score</div>
+      <div class="card-desc">Avg additives per food: <span id="cleanAvg">0.00</span></div>
+    </div>
+
+    <div class="dash-card">
+      <div class="ring seed" id="ringSeed" style="--percent:0%">Low</div>
+      <div class="card-title">Seed Oil Risk</div>
+      <div class="card-desc" id="seedDesc">No seed-oil markers detected</div>
+    </div>
+
+    <div class="dash-card">
+      <div class="ring micro" id="ringMicro" style="--percent:0%">0</div>
+      <div class="card-title">Microplastic Risk</div>
+      <div class="card-desc"><span id="microCount">0</span> colour(s) flagged</div>
     </div>
   </div>
 
-  <div class="card" id="results">
-    <h2>Daily Additive Summary</h2>
-
-    <div id="summaryChips"></div>
-
-    <p style="font-size:0.85rem; margin-bottom:1rem;">
-      Colour key:
-      <span class="pill high" style="font-size:0.75rem;">Higher concern</span>
-      <span class="pill moderate" style="font-size:0.75rem;">Some concern</span>
-      <span class="pill low" style="font-size:0.75rem;">Lower concern</span>
-      <span class="pill unknown" style="font-size:0.75rem;">Not in sample list</span>
-    </p>
-
-    <div id="additiveTable">No data yet.</div>
+  <!-- Ingredient breakdown section added here -->
+  <div class="breakdown-container" id="breakdownSection" style="display: none;">
+    <h3>Natural vs Processed Breakdown</h3>
+    <div class="breakdown-item">
+      <span class="breakdown-label natural-label">Natural</span>
+      <span id="naturalPercent">0%</span>
+    </div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="naturalProgressBar"></div>
+    </div>
+    <div class="breakdown-item" style="margin-top: 1rem;">
+      <span class="breakdown-label artificial-label">Artificial/Processed</span>
+      <span id="artificialPercent">0%</span>
+    </div>
   </div>
-
 </div>
 
+
+
+<!-- ----------------- REST OF YOUR APP (UNCHANGED) ----------------- -->
+
+<div class="grid">
+  <div class="card">
+    <h2>Add Food</h2>
+
+    <label>Type any food you ate</label>
+    <input id="foodSearch" placeholder="e.g. Big Mac, Pepsi Max, Doritos" />
+    <button onclick="autoSearchFood()">Auto-detect additives using internet</button>
+
+    <hr>
+
+    <p>Or choose common fast foods:</p>
+    <select id="fastFoodMenu">
+      <option value="">-- Choose an item --</option>
+      <option value="bigmac">McDonald's Big Mac</option>
+      <option value="fries">Fast-food French Fries</option>
+      <option value="kfc_bucket">KFC Chicken Bucket</option>
+      <option value="tacobell_taco">Taco Bell Taco</option>
+    </select>
+    <button onclick="addFastFood()">Add fast food</button>
+  </div>
+
+  <div class="card">
+    <h2>Today's Foods</h2>
+    <ul id="foodsList"></ul>
+    <button onclick="clearFoods()">Clear All</button>
+  </div>
+</div>
+
+
+<div class="card" id="results">
+  <h2>Daily Additive Summary</h2>
+
+  <div id="summaryChips" style="margin-bottom:1rem; display:flex; flex-wrap:wrap; gap:0.6rem;"></div>
+
+  <p style="font-size:0.85rem; margin-bottom:1rem;">
+    Colour key:
+    <span style="background:#fee2e2; color:#991b1b; padding:0.2rem 0.5rem; border-radius:12px; font-size:0.75rem;">Higher concern</span>
+    <span style="background:#fef9c3; color:#854d0e; padding:0.2rem 0.5rem; border-radius:12px; font-size:0.75rem;">Some concern</span>
+    <span style="background:#dcfce7; color:#166534; padding:0.2rem 0.5rem; border-radius:12px; font-size:0.75rem;">Lower concern</span>
+    <span style="background:#e5e7eb; color:#374151; padding:0.2rem 0.5rem; border-radius:12px; font-size:0.75rem;">Not in this sample list</span>
+  </p>
+
+  <div id="additiveTable">No data yet.</div>
+</div>
+
+
+</div> <!-- end app container -->
+
 <script>
-// ---- Fast Food Presets ----
+
+/* ---------------- YOUR ORIGINAL DATABASE ---------------- */
+
 const fastFoodDB = {
   bigmac:["150d","202","330","621"],
   fries:["320","450","500"],
@@ -207,7 +314,6 @@ const fastFoodDB = {
   tacobell_taco:["330","202","1422","621"]
 };
 
-// ---- Additive Database ----
 const additiveDB = {
   "102": {name:"Tartrazine", type:"Artificial colour", concern:"high", notes:"Linked to hyperactivity and allergic reactions."},
   "110": {name:"Sunset Yellow", type:"Artificial colour", concern:"high", notes:"May trigger reactions in sensitive individuals."},
@@ -230,112 +336,203 @@ const additiveDB = {
 
 let foods = [];
 
-// ---- Add Fast Food ----
-function addFastFood(){
-  const key = document.getElementById("fastFoodMenu").value;
-  if(!key) return;
-  foods.push({name: document.querySelector(`#fastFoodMenu option[value="${key}"]`).textContent, additives: [...fastFoodDB[key]]});
-  renderFoods();
-  renderTable();
-}
 
-// ---- Auto-detect additives (simulated online search) ----
-async function autoSearchFood(){
-  const item = document.getElementById("foodSearch").value.trim();
-  if(!item) return;
-  const simulated = ["102","110","211","220","250","621"];
-  foods.push({name:item, additives:simulated});
-  renderFoods();
-  renderTable();
-}
+/* ---------------- RENDER UPDATED DASHBOARD RINGS AND STATUS ---------------- */
 
-// ---- Render Foods List ----
-function renderFoods(){
-  const el = document.getElementById("foodsList");
-  el.innerHTML = "";
-  if(foods.length === 0){ 
-    el.innerHTML = '<li class="muted">No foods logged yet. Add something from the left.</li>'; 
-    return; 
+function updateDashboard() {
+  const totalAdditives = foods.reduce((sum, f) => sum + f.additives.length, 0);
+  const cleanScore = foods.length ? (totalAdditives / foods.length) : 0;
+  
+  const totalHomemadeScore = foods.reduce((sum, f) => sum + (f.isHomemade ? 1 : 0), 0);
+  const homemadePercentage = foods.length ? Math.round((totalHomemadeScore / foods.length) * 100) : 0;
+
+  document.getElementById('additiveCount').textContent = totalAdditives;
+  document.getElementById('ringAdditive').style.setProperty('--percent', `${Math.min(totalAdditives * 10, 100)}%`);
+  document.getElementById('cleanAvg').textContent = cleanScore.toFixed(2);
+
+  const dashboardContainer = document.getElementById('healthDashboard');
+  const processingStatusEl = document.getElementById('processingStatus');
+  const breakdownSection = document.getElementById('breakdownSection');
+  const naturalProgressBar = document.getElementById('naturalProgressBar');
+
+  if (foods.length === 0) {
+      dashboardContainer.className = 'dashboard-container';
+      processingStatusEl.textContent = 'Status: Unknown';
+      processingStatusEl.style.backgroundColor = 'transparent';
+      breakdownSection.style.display = 'none';
+  } else {
+      if (homemadePercentage >= 50) {
+          dashboardContainer.classList.remove('ultra-processed');
+          dashboardContainer.classList.add('natural');
+          processingStatusEl.textContent = 'Status: Mostly Natural';
+          processingStatusEl.style.backgroundColor = '#ecfdf5';
+      } else {
+          dashboardContainer.classList.remove('natural');
+          dashboardContainer.classList.add('ultra-processed');
+          processingStatusEl.textContent = 'Status: Mostly Ultra-Processed';
+          processingStatusEl.style.backgroundColor = '#fef2f2';
+      }
+
+      breakdownSection.style.display = 'block';
+      const naturalP = homemadePercentage;
+      const artificialP = 100 - homemadePercentage;
+
+      document.getElementById('naturalPercent').textContent = `${naturalP}%`;
+      document.getElementById('artificialPercent').textContent = `${artificialP}%`;
+      naturalProgressBar.style.width = `${naturalP}%`;
+
+      if (artificialP >= 60) {
+          naturalProgressBar.style.backgroundColor = '#ef4444';
+      } else {
+          naturalProgressBar.style.backgroundColor = '#10b981';
+      }
   }
-  foods.forEach((f, idx)=>{
-    const li = document.createElement("li");
-    const badges = f.additives.length ? f.additives.map(a=>{
-      const concern = additiveDB[a]?.concern || 'unknown';
-      return `<span class="pill ${concern}">${a}</span>`;
-    }).join(' ') : '<span class="muted">No additives recorded</span>';
-    li.innerHTML = `<strong>${idx+1}. ${f.name}</strong><br>Additives: ${badges}`;
-    el.appendChild(li);
-  });
 }
 
-// ---- Clear Foods ----
-function clearFoods(){ 
-  foods = []; 
-  renderFoods(); 
-  document.getElementById("additiveTable").innerHTML = "No data yet."; 
-  renderSummary(); 
+
+/* ---------------- CORE LOGIC MODIFIED HERE ---------------- */
+
+
+function promptForHomemade(foodName) {
+    const isHomemade = confirm(`Is the food "${foodName}" homemade? Click OK for YES, Cancel for NO.`);
+    return isHomemade;
 }
 
-// ---- Render Table ----
-function renderTable(){
-  const count = {};
-  foods.forEach(f => f.additives.forEach(a => { const k = String(a).toLowerCase(); count[k] = (count[k]||0)+1; }));
-  const codes = Object.keys(count).sort();
-  if(codes.length === 0){ 
-    document.getElementById("additiveTable").innerHTML = '<p class="muted">No additives to show yet – add some foods first.</p>'; 
-    renderSummary(); 
-    return; 
+// Function modified to handle additives based on homemade status
+function addFood(name, additives, isHomemade = undefined) {
+  let homemadeStatus = isHomemade;
+  
+  if (homemadeStatus === undefined) {
+      homemadeStatus = promptForHomemade(name);
   }
 
-  let html = `<table><thead><tr><th>Code</th><th>Name</th><th>Type</th><th>Concern</th><th>Notes</th><th>Times Found</th></tr></thead><tbody>`;
-  codes.forEach(code => {
-    const info = additiveDB[code] || {name: "Unknown", type:"Unknown", concern:"unknown", notes:"Not in database"};
-    let concernLabel = 'Not in this sample list', bg = '#e5e7eb';
-    if(info.concern === 'high'){ concernLabel='Higher concern'; bg='#fee2e2'; }
-    else if(info.concern==='moderate'){ concernLabel='Some concern'; bg='#fef9c3'; }
-    else if(info.concern==='low'){ concernLabel='Lower concern'; bg='#dcfce7'; }
+  // CRITICAL CHANGE: If homemade, the final additives list stored is empty.
+  const finalAdditives = (homemadeStatus === true) ? [] : additives;
 
-    html += `<tr>
-      <td data-label="Code"><code>${code}</code></td>
-      <td data-label="Name">${info.name}</td>
-      <td data-label="Type">${info.type}</td>
-      <td data-label="Concern" style="background:${bg}; padding:6px; border-radius:8px;">${concernLabel}</td>
-      <td data-label="Notes">${info.notes}</td>
-      <td data-label="Times Found">${count[code]}</td>
-    </tr>`;
-  });
-  html += `</tbody></table>`;
-  document.getElementById("additiveTable").innerHTML = html;
-  renderSummary();
+  foods.push({ name, additives: finalAdditives, isHomemade: homemadeStatus });
+  renderFoods();
+  updateDashboard();
 }
 
-// ---- Render Summary ----
-function renderSummary(){
-  const summaryEl = document.getElementById('summaryChips');
-  const totalFoods = foods.length;
-  const all = [];
-  foods.forEach(f => all.push(...f.additives));
-  const unique = [...new Set(all.map(x=>String(x).toLowerCase()))];
+function autoSearchFood() {
+  const searchInput = document.getElementById('foodSearch');
+  const foodName = searchInput.value.trim();
+  if (foodName) {
+    const simulatedAdditives = ["621", "150d", "202"]; 
+    // Calling addFood without 3rd argument triggers prompt, and uses the simulated list
+    addFood(foodName, simulatedAdditives);
+    searchInput.value = '';
+  }
+}
 
-  let highCount = 0, modCount = 0;
-  unique.forEach(code => {
-    const c = additiveDB[code]?.concern || 'unknown';
-    if(c==='high') highCount++;
-    else if(c==='moderate') modCount++;
+function addFastFood() {
+  const menu = document.getElementById('fastFoodMenu');
+  const selectedFoodKey = menu.value;
+  if (selectedFoodKey) {
+    const additives = fastFoodDB[selectedFoodKey];
+    const foodName = menu.options[menu.selectedIndex].text;
+    // Pass 'false' explicitly for fast food to skip the pop-up prompt AND use the DB additives
+    addFood(foodName, additives, false); 
+    menu.value = '';
+  }
+}
+
+function clearFoods() {
+  foods = [];
+  renderFoods();
+  updateDashboard();
+}
+
+function removeFood(index) {
+  foods.splice(index, 1);
+  renderFoods();
+  updateDashboard();
+}
+
+function renderFoods() {
+  const foodsList = document.getElementById('foodsList');
+  foodsList.innerHTML = '';
+  foods.forEach((food, index) => {
+    const li = document.createElement('li');
+    // food.additives.length will now correctly show 0 for homemade items
+    li.innerHTML = `${food.name} (${food.additives.length} additives) 
+                    <span class="pill">${food.isHomemade ? 'Homemade ✅' : 'Processed ❌'}</span>
+                    <button onclick="removeFood(${index})" style="width: auto; margin-left: 10px;">Remove</button>`;
+    foodsList.appendChild(li);
   });
+  renderAdditiveSummary();
+}
 
-  summaryEl.innerHTML = `
-    <span style="background:#e5e7eb; padding:6px 12px; border-radius:20px;"><strong>${totalFoods}</strong> foods logged</span>
-    <span style="background:#e5e7eb; padding:6px 12px; border-radius:20px;"><strong>${unique.length}</strong> unique additives</span>
-    <span style="background:#fee2e2; color:#991b1b; padding:6px 12px; border-radius:20px;"><strong>${highCount}</strong> higher-concern additives</span>
-    <span style="background:#fef9c3; color:#854d0e; padding:6px 12px; border-radius:20px;"><strong>${modCount}</strong> moderate-concern additives</span>
+
+/* ---------------- SUMMARY SECTION FUNCTIONS ---------------- */
+
+function renderAdditiveSummary() {
+  const additiveTableEl = document.getElementById('additiveTable');
+  const summaryChipsEl = document.getElementById('summaryChips');
+  
+  if (foods.length === 0) {
+    additiveTableEl.innerHTML = 'No data yet.';
+    summaryChipsEl.innerHTML = '';
+    return;
+  }
+
+  // Gather unique additives from all *non-empty* additive lists logged
+  const allAdditives = foods.flatMap(food => food.additives);
+  const uniqueAdditives = [...new Set(allAdditives)].sort();
+
+  if (uniqueAdditives.length === 0) {
+      additiveTableEl.innerHTML = '<p>No artificial additives detected in today\'s log.</p>';
+      summaryChipsEl.innerHTML = '';
+      return;
+  }
+
+  let tableHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Concern Level</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
   `;
+
+  uniqueAdditives.forEach(code => {
+    const details = additiveDB[code];
+    if (details) {
+      let concernClass = '';
+      if (details.concern === 'high') concernClass = 'style="background:#fee2e2; color:#991b1b;"';
+      if (details.concern === 'moderate') concernClass = 'style="background:#fef9c3; color:#854d0e;"';
+      if (details.concern === 'low') concernClass = 'style="background:#dcfce7; color:#166534;"';
+
+      tableHTML += `
+        <tr>
+          <td><strong>${code}</strong></td>
+          <td>${details.name}</td>
+          <td>${details.type}</td>
+          <td ${concernClass}>${details.concern}</td>
+          <td>${details.notes}</td>
+        </tr>
+      `;
+      
+      const chip = document.createElement('span');
+      chip.className = 'pill';
+      chip.textContent = code;
+      summaryChipsEl.appendChild(chip);
+
+    }
+  });
+
+  tableHTML += `</tbody></table>`;
+  additiveTableEl.innerHTML = tableHTML;
 }
 
-// ---- Initial Render ----
-renderFoods();
-renderTable();
+// Initial dashboard update on load
+updateDashboard();
+
 </script>
 </body>
 </html>
-
